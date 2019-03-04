@@ -8,7 +8,6 @@ import java.util.List;
 /**
  * This is an example implementation of a non-dominated set. It updates the set whenever new
  * solutions are added.
- *
  */
 public class NonDominatedSet {
 
@@ -17,6 +16,7 @@ public class NonDominatedSet {
 
     /**
      * Add a solution to the non-dominated set
+     *
      * @param s The solution to be added.
      * @return true if the solution was indeed added. Otherwise false.
      */
@@ -24,7 +24,7 @@ public class NonDominatedSet {
 
         boolean isAdded = true;
 
-        for (Iterator<Solution> it = entries.iterator(); it.hasNext();) {
+        for (Iterator<Solution> it = entries.iterator(); it.hasNext(); ) {
             Solution other = it.next();
 
             int rel = s.getRelation(other);
@@ -40,8 +40,5 @@ public class NonDominatedSet {
         if (isAdded) entries.add(s);
 
         return isAdded;
-
     }
-
-
 }

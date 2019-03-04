@@ -9,30 +9,35 @@ import java.io.InputStream;
 import java.util.*;
 
 class Runner {
-    static final ClassLoader LOADER = Runner.class.getClassLoader();
+    private static final ClassLoader LOADER = Runner.class.getClassLoader();
 
     public static void main(String[] args) throws IOException {
-        List<String> instanceToRun = Arrays.asList("test-example-n4");
-        //List<String> instanceToRun = Competition.INSTANCES;
+        //List<String> instanceToRun = Arrays.asList("test-example-n4");
+        List<String> instanceToRun = Competition.INSTANCES;
         for (String instance : instanceToRun) {
+            System.out.println("Running on " + instance);
             String fname = String.format("resources/%s.txt", instance);
             InputStream is = LOADER.getResourceAsStream(fname);
 
             TravelingThiefProblem problem = Util.readProblem(is);
+            System.out.println(problem.numOfCities + " " + problem.numOfItems);
             problem.name = instance;
-            int numOfSolutions = Competition.numberOfSolutions(problem);
-            Algorithm algorithm = new GeneticAlgorithm(100, 20,0.01, 500);
-            List<Solution> nds = algorithm.solve(problem);
-            nds.sort(Comparator.comparing(a -> a.time));
+            Algorithm algorithm = new GeneticAlgorithm(100, 20,0.02, 500, 0.001);
+            List<Solution> nds = discardSomeSolutions(algorithm.solve(problem), Competition.numberOfSolutions(problem));
 
-            System.out.println(nds.size());
-            for (Solution s : nds) {
-                System.out.println(s.time + " " + s.profit);
-            }
-            Util.printSolutions(nds, true);
-            System.out.println(problem.name + " " + nds.size());
+            System.out.println(problem.name + " " + nds.size() + " " + Competition.numberOfSolutions(problem));
             File dir = new File("results");
             Util.writeSolutions("results", Competition.TEAM_NAME, problem, nds);
         }
+    }
+
+    private static List<Solution> discardSomeSolutions(List<Solution> nds, int numberOfSolutions) {
+        if (nds.size() <= numberOfSolutions) {
+            return nds;
+        }
+        List<Solution> selectedNDS = new ArrayList<>(numberOfSolutions);
+        Collections.shuffle(nds);
+        while(selectedNDS.size() < numberOfSolutions) selectedNDS.add(nds.get(selectedNDS.size()));
+        return selectedNDS;
     }
 }

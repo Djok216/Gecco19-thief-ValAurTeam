@@ -8,12 +8,10 @@ import java.util.List;
 /**
  * This class represents the main problem to be solved. It stores all variables which are necessary
  * to evaluate the objective function.
- *
+ * <p>
  * Either define the problem by yourself or load it from a file.
- *
  */
 public class TravelingThiefProblem {
-
     //! name of the problem - set if read from a file
     public String name = "unknown";
 
@@ -55,9 +53,8 @@ public class TravelingThiefProblem {
      * Initialize the problem by saving for each city the items to pick
      */
     public void initialize() {
-
         // make the checks to avoid wrong parameters for the problem
-        if (numOfCities == -1 || numOfItems == -1 || minSpeed == -1 || maxSpeed == -1|| maxWeight == -1
+        if (numOfCities == -1 || numOfItems == -1 || minSpeed == -1 || maxSpeed == -1 || maxWeight == -1
                 || R == Double.POSITIVE_INFINITY)
             throw new RuntimeException("Error while loading problem. Some variables are not initialized");
 
@@ -70,9 +67,7 @@ public class TravelingThiefProblem {
         for (int i = 0; i < this.cityOfItem.length; i++) {
             this.itemsAtCity.get(this.cityOfItem[i]).add(i);
         }
-
     }
-
 
     /**
      * See evaluate(pi,z,copy). Per default pi and z are not copied.
@@ -83,18 +78,17 @@ public class TravelingThiefProblem {
 
     /**
      * The evaluation function of the problem to simulate the tour of the thief.
-     * @param pi the tour
-     * @param z the packing plan
+     *
+     * @param pi   the tour
+     * @param z    the packing plan
      * @param copy if true the returned solution object has a copy of the tour and packing plan - otherwise
      *             just a reference. Be careful here, if you change the tour afterwards, the result will not match finally.
-     *
      * @return A solution objective containing
      */
     public Solution evaluate(List<Integer> pi, List<Boolean> z, boolean copy) {
-
         if (pi.size() != this.numOfCities || z.size() != this.numOfItems) {
             throw new RuntimeException("Wrong input for traveling thief evaluation!");
-        } else if(pi.get(0) != 0) {
+        } else if (pi.get(0) != 0) {
             throw new RuntimeException("Thief must start at city 0!");
         }
 
@@ -107,26 +101,23 @@ public class TravelingThiefProblem {
 
         // iterate over all possible cities
         for (int i = 0; i < this.numOfCities; i++) {
-
             // the city where the thief currently is
             int city = pi.get(i);
 
             // for each item index this city
             for (int j : this.itemsAtCity.get(city)) {
-
                 // if the thief picks that item
                 if (z.get(j)) {
                     // update the current weight and profit
                     weight += this.weight[j];
                     profit += this.profit[j];
                 }
-
             }
 
             // if the maximum capacity constraint is reached
             if (weight > maxWeight) {
                 time = Double.MAX_VALUE;
-                profit = - Double.MAX_VALUE;
+                profit = -Double.MAX_VALUE;
                 break;
             }
 
@@ -153,16 +144,53 @@ public class TravelingThiefProblem {
         s.time = time;
         s.profit = profit;
         s.singleObjective = profit - this.R * time;
-        s.objectives =  Arrays.asList(time, -profit);
-
+        s.objectives = Arrays.asList(time, -profit);
         return s;
-
     }
 
-    public double euclideanDistance(int a, int b) {
+    public Solution evaluate(List<Integer> pi) {
+        if (pi.size() != this.numOfCities) {
+            throw new RuntimeException("Wrong input for traveling thief evaluation!");
+        } else if (pi.get(0) != 0) {
+            throw new RuntimeException("Thief must start at city 0!");
+        }
+
+        double time = 0;
+        for (int i = 0; i < this.numOfCities; i++) {
+            int city = pi.get(i);
+            double speed = this.maxSpeed;
+            int next = pi.get((i + 1) % this.numOfCities);
+            double distance = Math.ceil(euclideanDistance(city, next));
+            time += distance / speed;
+        }
+
+        Solution s = new Solution();
+        s.z = new ArrayList<>(this.numOfItems);
+        while(s.z.size() < this.numOfItems) s.z.add(Boolean.FALSE);
+        s.pi = new ArrayList<>(pi);
+        s.time = time;
+        s.profit = 0;
+        s.singleObjective = 0 - this.R * time;
+        s.objectives = Arrays.asList(time, 0.0);
+        return s;
+    }
+
+    public double evaluateTour(List<Integer> tour) {
+        if (tour.size() != this.numOfCities || tour.get(0) != 0) {
+            return Double.MAX_VALUE;
+        }
+        double time = 0;
+        for (int i = 0; i < this.numOfCities; i++) {
+            int city = tour.get(i);
+            int next = tour.get((i + 1) % this.numOfCities);
+            double distance = Math.ceil(euclideanDistance(city, next));
+            time += distance / this.maxSpeed;
+        }
+        return time;
+    }
+
+    private double euclideanDistance(int a, int b) {
         return Math.sqrt(Math.pow(this.coordinates[a][0] - this.coordinates[b][0], 2)
                 + Math.pow(this.coordinates[a][1] - this.coordinates[b][1], 2));
     }
-
-
 }

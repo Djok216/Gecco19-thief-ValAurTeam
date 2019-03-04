@@ -67,7 +67,7 @@ public class RandomLocalSearch implements Algorithm {
                 int item = rnd.get(j);
 
                 // if picking up this item will not violate this maximum constraint
-                if (weight + problem.weight[item] < problem.maxWeight) {
+                if (weight + problem.weight[item] <= problem.maxWeight) {
                     // pick the item
                     z.set(item, true);
                     weight += problem.weight[item];
