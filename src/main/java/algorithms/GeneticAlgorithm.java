@@ -115,50 +115,14 @@ public class GeneticAlgorithm implements Algorithm {
     }
 
     private void evaluatePopulation(NonDominatedSet nds, List<List<Integer>> pop, TravelingThiefProblem problem) {
-        for (List<Integer> tour : pop) {
-            Solution s = problem.evaluate(tour);
-            nds.add(s);
-            List<Boolean> items = new ArrayList<>(problem.numOfItems);
-            while (items.size() < problem.numOfItems) items.add(Boolean.FALSE);
-            List<Integer> randPerm = generateRandomPermutation(problem.numOfItems);
-            double weight = 0.0;
-            for (int item : randPerm) {
-                if (weight + problem.weight[item] <= problem.maxWeight) {
-                    items.set(item, true);
-                    weight += problem.weight[item];
-                    if (Math.random() < this.evalProbability) {
-                        s = problem.evaluate(tour, items, true);
-                        nds.add(s);
-                    }
-                }
-            }
-            s = problem.evaluate(tour, items, true);
-            nds.add(s);
-        }
+        pop.forEach(tour -> AlgorithmCommons.evaluateTourPickingGreedy(nds, tour, this.evalProbability, problem));
     }
 
     private List<List<Integer>> generateRandomTSPPopulation(int numOfCities) {
         List<List<Integer>> list = new ArrayList<>(this.popSize);
         for (int i = 0; i < this.popSize; ++i) {
-            list.add(generateRandomTour(numOfCities));
+            list.add(AlgorithmCommons.generateRandomTour(numOfCities));
         }
         return list;
-    }
-
-    private List<Integer> generateRandomTour(int numOfCities) {
-        List<Integer> tour = new ArrayList<>();
-        for (int i = 1; i < numOfCities; ++i) {
-            tour.add(i);
-        }
-        java.util.Collections.shuffle(tour);
-        tour.add(0, 0);
-        return tour;
-    }
-
-    private List<Integer> generateRandomPermutation(int size) {
-        List<Integer> randPerm = new ArrayList<>(size);
-        while (randPerm.size() < size) randPerm.add(randPerm.size());
-        Collections.shuffle(randPerm);
-        return randPerm;
     }
 }
