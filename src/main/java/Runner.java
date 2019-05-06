@@ -12,8 +12,9 @@ class Runner {
     private static final ClassLoader LOADER = Runner.class.getClassLoader();
 
     public static void main(String[] args) throws IOException {
-        //List<String> instanceToRun = Arrays.asList("test-example-n4");
-        List<String> instanceToRun = Competition.INSTANCES;
+        //List<String> instanceToRun = Arrays.asList("a280-n1395", "fnl4461-n44600");
+        List<String> instanceToRun = Arrays.asList("fnl4461-n44600");
+        //List<String> instanceToRun = Competition.INSTANCES;
         for (String instance : instanceToRun) {
             System.out.println("Running on " + instance);
             String fname = String.format("resources/%s.txt", instance);
@@ -22,8 +23,8 @@ class Runner {
             TravelingThiefProblem problem = Util.readProblem(is);
             System.out.println(problem.numOfCities + " " + problem.numOfItems);
             problem.name = instance;
-            Algorithm algorithm = new GeneticAlgorithm(100, 20,0.02, 500, 0.001);
-            List<Solution> nds = discardSomeSolutions(algorithm.solve(problem), Competition.numberOfSolutions(problem));
+            Algorithm algorithm = new GeneticAlgorithm(100, 20,0.02, 500, 1);
+            List<Solution> nds = algorithm.solve(problem);
 
             System.out.println(problem.name + " " + nds.size() + " " + Competition.numberOfSolutions(problem));
             File dir = new File("results");
