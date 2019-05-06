@@ -2,6 +2,7 @@ package algorithms;
 
 import model.NonDominatedSet;
 import model.Solution;
+import model.SparseMatrix;
 import model.TravelingThiefProblem;
 
 import java.util.ArrayList;
@@ -32,21 +33,17 @@ public class AntColonyAlgorithm implements Algorithm {
     @Override
     public List<Solution> solve(TravelingThiefProblem problem) {
         NonDominatedSet nds = new NonDominatedSet();
-        double[][] pheromoneMatrix = new double[problem.numOfCities][problem.numOfCities];
 
         List<Integer> best = AlgorithmCommons.generateRandomTour(problem.numOfCities);
         AlgorithmCommons.evaluateTourPickingGreedy(nds, best, 0.001, problem);
         double bestCost = problem.evaluateTour(best);
         double initialPheromone =  1.0 / (bestCost * problem.numOfCities);
-
-        for (int i = 0; i < pheromoneMatrix.length; i++) {
-            Arrays.fill(pheromoneMatrix[i], initialPheromone);
-        }
+        SparseMatrix<Double> pheromoneMatrix = new SparseMatrix<>(initialPheromone);
 
         int iterationWithoutUpdate = 0;
 
         // stop condition.
-        while (iterationWithoutUpdate < 100) {
+        while (iterationWithoutUpdate < 1000) {
             iterationWithoutUpdate = iterationWithoutUpdate + 1;
 
             for (int i = 0; i < totalAnts; i++) {
@@ -70,7 +67,7 @@ public class AntColonyAlgorithm implements Algorithm {
         return nds.entries;
     }
 
-    private List<Integer> generateCurrentTour(double[][] pheromoneMatrix, TravelingThiefProblem problem) {
+    private List<Integer> generateCurrentTour(SparseMatrix<Double> pheromoneMatrix, TravelingThiefProblem problem) {
         List<Integer> current = new ArrayList<>();
         Set<Integer> usedCities = new HashSet<>();
         current.add(0);
@@ -78,6 +75,7 @@ public class AntColonyAlgorithm implements Algorithm {
 
         for (int i = 1; i < problem.numOfCities; i++) {
             double[] prob = new double[problem.numOfCities];
+            double sumProb = .0;
             double maxProb = -1.0;
             int maxProbCity = -1;
 
@@ -87,9 +85,11 @@ public class AntColonyAlgorithm implements Algorithm {
                 }
 
                 int lastCity = current.get(current.size() - 1);
-                double histProb = Math.pow(pheromoneMatrix[lastCity][j], historyCoefficient);
+                //double histProb = Math.pow(pheromoneMatrix.get(lastCity, j), historyCoefficient);
+                double histProb = pheromoneMatrix.get(lastCity, j);
                 double heurProb = Math.pow((1.0 / AlgorithmCommons.getDistance(problem, lastCity, j)), heuristicCoefficient);
                 prob[j] = histProb * heurProb;
+                sumProb = sumProb + prob[j];
 
                 if (prob[j] > maxProb) {
                     maxProb = prob[j];
@@ -97,7 +97,11 @@ public class AntColonyAlgorithm implements Algorithm {
                 }
             }
 
-            if (Math.random() < greedinessFactor) {
+            for (int j = 0; j < prob.length; j++) {
+                prob[j] = prob[j] / sumProb;
+            }
+
+            if (Math.random() < greedinessFactor || Math.abs(sumProb) == Double.POSITIVE_INFINITY) {
                 usedCities.add(maxProbCity);
                 current.add(maxProbCity);
             } else {
@@ -128,25 +132,25 @@ public class AntColonyAlgorithm implements Algorithm {
         return current;
     }
 
-    private void localUpdatePheromone(double[][] pheromoneMatrix, List<Integer> tour, double initialPheromone) {
+    private void localUpdatePheromone(SparseMatrix<Double> pheromoneMatrix, List<Integer> tour, double initialPheromone) {
         for (int i = 0; i < tour.size(); i++) {
             int currentCity = tour.get(i);
             int nextCity = (i == tour.size() - 1) ? tour.get(0) : tour.get(i+1);
-            double value = (1.0 - historyCoefficient) * pheromoneMatrix[currentCity][nextCity] + historyCoefficient * initialPheromone;
+            double value = (1.0 - historyCoefficient) * pheromoneMatrix.get(currentCity, nextCity) + historyCoefficient * initialPheromone;
 
-            pheromoneMatrix[currentCity][nextCity] = value;
-            pheromoneMatrix[nextCity][currentCity] = value;
+            pheromoneMatrix.add(currentCity, nextCity, value);
+            pheromoneMatrix.add(nextCity, currentCity, value);
         }
     }
 
-    private void globalUpdatePheromone(double[][] pheromoneMatrix, List<Integer> tour, double tourCost) {
+    private void globalUpdatePheromone(SparseMatrix<Double> pheromoneMatrix, List<Integer> tour, double tourCost) {
         for (int i = 0; i < tour.size(); i++) {
             int currentCity = tour.get(i);
             int nextCity = (i == tour.size() - 1) ? tour.get(0) : tour.get(i+1);
-            double value = (1.0 - decayFactor) * pheromoneMatrix[currentCity][nextCity] + decayFactor * (1.0 / tourCost);
+            double value = (1.0 - decayFactor) * pheromoneMatrix.get(currentCity, nextCity) + decayFactor * (1.0 / tourCost);
 
-            pheromoneMatrix[currentCity][nextCity] = value;
-            pheromoneMatrix[nextCity][currentCity] = value;
+            pheromoneMatrix.add(currentCity, nextCity, value);
+            pheromoneMatrix.add(nextCity, currentCity, value);
         }
     }
 
