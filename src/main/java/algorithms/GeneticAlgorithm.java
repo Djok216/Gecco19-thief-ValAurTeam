@@ -26,11 +26,9 @@ public class GeneticAlgorithm implements Algorithm {
     public List<Solution> solve(TravelingThiefProblem problem) {
         NonDominatedSet nds = new NonDominatedSet();
         List<List<Integer>> pop = generateRandomTSPPopulation(problem.numOfCities);
-        evaluatePopulation(nds, pop, problem);
+        if (problem.numOfItems > 10000) this.evalProbability = 0.001;
         for (int generation = 0; generation < this.generations; ++generation) {
-            if (generation % 100 == 0) {
-                System.out.println("Current Generation: " + generation);
-            }
+            System.out.println("Current Generation: " + generation);
             pop = generateNextGeneration(pop, problem);
             evaluatePopulation(nds, pop, problem);
         }

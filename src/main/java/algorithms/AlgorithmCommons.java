@@ -21,7 +21,7 @@ public class AlgorithmCommons {
                 .mapToObj(x -> x)
                 .collect(Collectors.toList());
         Collections.shuffle(tour.subList(1, numOfCities));
-        
+
         return tour;
     }
 
@@ -43,15 +43,14 @@ public class AlgorithmCommons {
             TravelingThiefProblem problem) {
         Solution s = problem.evaluate(tour);
         nds.add(s);
-        List<Boolean> items = new ArrayList<>(problem.numOfItems);
-        while (items.size() < problem.numOfItems) items.add(Boolean.FALSE);
+        List<Boolean> items = new ArrayList<>(Collections.nCopies(problem.numOfItems, false));
         List<Integer> randPerm = generateRandomPermutation(problem.numOfItems);
         double weight = 0.0;
         for (int item : randPerm) {
             if (weight + problem.weight[item] <= problem.maxWeight) {
                 items.set(item, true);
                 weight += problem.weight[item];
-                if (Math.random() < evalProbability) {
+                if (Math.random() < this.evalProbability) {
                     s = problem.evaluate(tour, items, true);
                     nds.add(s);
                 }

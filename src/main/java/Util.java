@@ -13,10 +13,7 @@ import java.util.stream.Collectors;
  * This class reads a problem into the object class.
  */
 public abstract class Util {
-
-
     public static void writeSolutions(String outputFolder, String teamName, TravelingThiefProblem problem, List<Solution> solutions) throws IOException {
-
         int numberOfSolutions = Competition.numberOfSolutions(problem);
         if (solutions.size() > numberOfSolutions) {
             System.out.println(String.format("WARNING: Finally the competition allows only %s solutions to be submitted. " +
@@ -47,20 +44,12 @@ public abstract class Util {
 
             // write into the objective file
             objBw.write(String.format("%.16f %.16f", solution.time, solution.profit) + "\n");
-
         }
-
         varBw.close();
         objBw.close();
-
-
-
     }
 
-
-
     public static void printSolutions(List<Solution> solutions, boolean printVariable) {
-
         System.out.println(String.format("Number of non-dominated solutions: %s", solutions.size()));
 
         for (Solution solution : solutions) {
@@ -80,8 +69,7 @@ public abstract class Util {
     }
 
 
-	public static TravelingThiefProblem readProblem(InputStream is) throws IOException {
-
+  public static TravelingThiefProblem readProblem(InputStream is) throws IOException {
         TravelingThiefProblem problem = new TravelingThiefProblem();
 
         Reader reader = new InputStreamReader(is);
@@ -89,7 +77,6 @@ public abstract class Util {
 
         String line = br.readLine();
         while(line != null){
-
             if (line.contains("PROBLEM NAME")) {
             } else if (line.contains("KNAPSACK DATA TYPE")) {
             } else if (line.contains("DIMENSION")) {
@@ -136,13 +123,7 @@ public abstract class Util {
         }
 
         br.close();
-
         problem.initialize();
         return problem;
-	}
-
-
-
-
-
+  }
 }

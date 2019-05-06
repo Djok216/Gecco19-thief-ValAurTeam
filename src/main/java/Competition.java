@@ -3,8 +3,6 @@ import model.TravelingThiefProblem;
 import java.util.*;
 
 public class Competition {
-
-
     //! Please type your team name here. Do not use "_" in your name please.
     static final String TEAM_NAME = "ValAurTeam";
 
@@ -40,6 +38,4 @@ public class Competition {
         else if (name.contains("pla33810")) return 20;
         else return Integer.MAX_VALUE;
     }
-
-
 }
