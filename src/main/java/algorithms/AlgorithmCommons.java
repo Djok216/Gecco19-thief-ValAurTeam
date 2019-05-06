@@ -50,7 +50,7 @@ public class AlgorithmCommons {
             if (weight + problem.weight[item] <= problem.maxWeight) {
                 items.set(item, true);
                 weight += problem.weight[item];
-                if (Math.random() < this.evalProbability) {
+                if (Math.random() < evalProbability) {
                     s = problem.evaluate(tour, items, true);
                     nds.add(s);
                 }
