@@ -35,7 +35,7 @@ public class AntColonyAlgorithm implements Algorithm {
         NonDominatedSet nds = new NonDominatedSet();
 
         List<Integer> best = AlgorithmCommons.generateRandomTour(problem.numOfCities);
-        AlgorithmCommons.evaluateTourPickingGreedy(nds, best, 0.001, problem);
+        AlgorithmCommons.evaluateTourPickingGreedy(nds, best, 15.0 / problem.numOfItems, problem);
         double bestCost = problem.evaluateTour(best);
         double initialPheromone =  1.0 / (bestCost * problem.numOfCities);
         SparseMatrix<Double> pheromoneMatrix = new SparseMatrix<>(initialPheromone);
@@ -48,7 +48,7 @@ public class AntColonyAlgorithm implements Algorithm {
 
             for (int i = 0; i < totalAnts; i++) {
                 List<Integer> current = generateCurrentTour(pheromoneMatrix, problem);
-                AlgorithmCommons.evaluateTourPickingGreedy(nds, current, 0.001, problem);
+                AlgorithmCommons.evaluateTourPickingGreedy(nds, current, 15.0 / problem.numOfItems, problem);
                 double currentCost = problem.evaluateTour(current);
 
                 if (currentCost < bestCost) {

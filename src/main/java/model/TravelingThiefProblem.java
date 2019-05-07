@@ -1,9 +1,6 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * This class represents the main problem to be solved. It stores all variables which are necessary
@@ -99,12 +96,26 @@ public class TravelingThiefProblem {
         // attributes in the beginning of the tour
         double weight = 0;
 
+        // optimized by Motroi Valeriu
+        HashMap<Integer, LinkedList<Integer>> selectedItems = new HashMap<>();
+        for (int i = 0; i < this.cityOfItem.length; i++) {
+            if (!z.get(i)) continue;
+            selectedItems.putIfAbsent(this.cityOfItem[i], new LinkedList<>());
+            selectedItems.get(this.cityOfItem[i]).add(i);
+        };
+
         // iterate over all possible cities
         for (int i = 0; i < this.numOfCities; i++) {
             // the city where the thief currently is
             int city = pi.get(i);
 
-            // for each item index this city
+            if (selectedItems.get(i) != null) {
+                for (int j : selectedItems.get(i)) {
+                    weight += this.weight[j];
+                    profit += this.profit[j];
+                }
+            }
+            /*// for each item index this city
             for (int j : this.itemsAtCity.get(city)) {
                 // if the thief picks that item
                 if (z.get(j)) {
@@ -112,7 +123,7 @@ public class TravelingThiefProblem {
                     weight += this.weight[j];
                     profit += this.profit[j];
                 }
-            }
+            }*/
 
             // if the maximum capacity constraint is reached
             if (weight > maxWeight) {
